@@ -82,19 +82,19 @@ namespace NinjaNye.SearchExtensions.Helpers.ExpressionBuilders.StartsWithExpress
             var paddedTerm = propertyToSearchFor.Body;
             if (searchType == SearchType.WholeWords)
             {
-                var seperator = Expression.Constant(" ");
-                var nullSafeProperty = BuildNullSafeExpression(propertyToSearchFor);
-                paddedTerm = Expression.Call(ExpressionMethods.StringConcatMethod, nullSafeProperty.Body, seperator);
+                var separator = Expression.Constant(" ");
+                paddedTerm = Expression.Call(ExpressionMethods.StringConcatMethod, propertyToSearchFor.Body, separator);
             }
 
             var nullSafeStringProperty = BuildNullSafeExpression(stringProperty);
-            var result = Expression.Call(nullSafeStringProperty.Body, ExpressionMethods.StartsWithMethod, paddedTerm);
+            var indexOfExpression = Expression.Call(nullSafeStringProperty.Body, ExpressionMethods.IndexOfMethod, paddedTerm);
+            var result = Expression.Equal(indexOfExpression, ExpressionMethods.ZeroConstantExpression);
             if (searchType == SearchType.WholeWords)
             {
                 var isEqualExpression = QueryableEqualsExpressionBuilder.Build(nullSafeStringProperty, propertyToSearchFor);
                 return ExpressionHelper.JoinOrExpression(result, isEqualExpression);
             }
-
+            
             return result;
         }
 
